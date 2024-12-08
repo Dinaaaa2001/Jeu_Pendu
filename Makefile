@@ -13,40 +13,44 @@ SIZE    = $(TC)-size
 OBJCOPY = $(TC)-objcopy
 OBJDUMP = $(TC)-objdump
 
+GCC_TOOLCHAIN_PATH = $(patsubst %/,%,$(dir $(patsubst %/,%,$(dir $(shell which $(CC))))))
+SYSROOT_PATH = $(GCC_TOOLCHAIN_PATH)/riscv32-MINIRISC-elf
+
 
 ################################## Mini-RISC ###################################
-CFLAGS += -I minirisc
-SRC    += minirisc/minirisc.c
-SRC    += minirisc/minirisc_init.S
+INCS += -Iminirisc
+SRC  += minirisc/minirisc.c
+SRC  += minirisc/minirisc_init.S
 
 ################################### xprintf ####################################
-CFLAGS += -I xprintf
-SRC    += xprintf/xprintf.c
+INCS += -Ixprintf
+SRC  += xprintf/xprintf.c
 
 ################################### FreeRTOS ###################################
-CFLAGS += -I FreeRTOS/include
-CFLAGS += -I FreeRTOS/portable/GCC/Mini-RISC
-SRC += FreeRTOS/tasks.c
-SRC += FreeRTOS/timers.c
-SRC += FreeRTOS/list.c
-SRC += FreeRTOS/queue.c
-SRC += FreeRTOS/croutine.c
-SRC += FreeRTOS/stream_buffer.c
-SRC += FreeRTOS/event_groups.c
-SRC += FreeRTOS/portable/MemMang/heap_3_nosuspend.c
-SRC += FreeRTOS/portable/GCC/Mini-RISC/port.c
-SRC += FreeRTOS/portable/GCC/Mini-RISC/portASM.S
+INCS += -IFreeRTOS/include
+INCS += -IFreeRTOS/portable/GCC/Mini-RISC
+SRC  += FreeRTOS/tasks.c
+SRC  += FreeRTOS/timers.c
+SRC  += FreeRTOS/list.c
+SRC  += FreeRTOS/queue.c
+SRC  += FreeRTOS/croutine.c
+SRC  += FreeRTOS/stream_buffer.c
+SRC  += FreeRTOS/event_groups.c
+SRC  += FreeRTOS/portable/MemMang/heap_3_nosuspend.c
+SRC  += FreeRTOS/portable/GCC/Mini-RISC/port.c
+SRC  += FreeRTOS/portable/GCC/Mini-RISC/portASM.S
 
 ################################ Support & glue ################################
-CFLAGS += -I support
-SRC += support/syscalls.c
-SRC += support/freertos_support.c
+INCS += -Isupport
+SRC  += support/syscalls.c
+SRC  += support/freertos_support.c
 
 ################################################################################
 
 LINKER_SCRIPT = minirisc/minirisc.ld
 
-CFLAGS  += -I.
+INCS    += -I.
+CFLAGS  += $(INCS)
 CFLAGS  += -W -Wall
 CFLAGS  += -Og -ggdb
 
@@ -122,6 +126,10 @@ gdb1: $(BUILD)/$(TARGET).elf
 
 gdb2: $(BUILD)/$(TARGET).elf
 	riscv32-MINIRISC-elf-gdb --tui $<
+
+compile_commands.json:
+	@echo "[\n "$(foreach file, $(SRCC),"{\n  \"arguments\": [\n   \"clang\",\n   \"--sysroot=$(SYSROOT_PATH)\",\n   \"--gcc-toolchain=$(GCC_TOOLCHAIN_PATH)\",\n   \"--target=riscv32-unknown-elf\",\n   \"-march=rv32im\",\n   \"-mabi=ilp32\",\n   $(foreach inc,$(INCS),\"$(inc)\",\n  ) \"-c\",\n   \"-o\",\n   \"$(abspath $(addprefix $(BUILD)/, $(file:.c=.o)))\",\n   \"$(abspath $(file))\"\n  ],\n  \"directory\": \"$(abspath $(PWD))\",\n  \"file\": \"$(abspath $(file))\",\n  \"output\": \"$(abspath $(addprefix $(BUILD)/, $(file:.c=.o)))\"\n },\n")"]" > $@
+
 
 clean:
 	@rm -rf $(BUILD)
