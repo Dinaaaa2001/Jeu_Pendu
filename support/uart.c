@@ -13,12 +13,9 @@
 #define UART_RX_QUEUE_LEN 128
 
 
-static StaticQueue_t uart_rx_queue_buffer;
-static unsigned char uart_rx_queue_storage_area[UART_RX_QUEUE_LEN * sizeof(char)];
-static QueueHandle_t uart_rx_queue;
-
+static QueueHandle_t     uart_rx_queue = NULL;
 static SemaphoreHandle_t uart_tx_mutex = NULL;
-static SemaphoreHandle_t uart_tx_sem = NULL;
+static SemaphoreHandle_t uart_tx_sem   = NULL;
 
 
 void uart_rx_interrupt_handler()
@@ -109,13 +106,8 @@ ssize_t uart_write(const char *ptr, size_t len)
 void init_uart()
 {
 	uart_tx_mutex = xSemaphoreCreateMutex();
-	uart_tx_sem = xSemaphoreCreateBinary();
-
-	uart_rx_queue = xQueueCreateStatic(UART_RX_QUEUE_LEN, sizeof(char), uart_rx_queue_storage_area, &uart_rx_queue_buffer);
-	if (!uart_rx_queue) {
-		xprintf("\e[91mCannot create UART RX queue!\e[0m\n");
-		minirisc_halt();
-	}
+	uart_tx_sem   = xSemaphoreCreateBinary();
+	uart_rx_queue = xQueueCreate(UART_RX_QUEUE_LEN, sizeof(char));
 
 	UART->CR = UART_CR_RXIE;
 
