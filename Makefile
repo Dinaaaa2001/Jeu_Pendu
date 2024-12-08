@@ -13,8 +13,35 @@ SIZE    = $(TC)-size
 OBJCOPY = $(TC)-objcopy
 OBJDUMP = $(TC)-objdump
 
-LINKER_SCRIPT = minirisc.ld
 
+################################## Mini-RISC ###################################
+CFLAGS += -I minirisc
+SRC    += minirisc/minirisc.c
+SRC    += minirisc/minirisc_init.S
+
+################################### xprintf ####################################
+CFLAGS += -I xprintf
+SRC    += xprintf/xprintf.c
+
+################################### FreeRTOS ###################################
+CFLAGS += -I FreeRTOS/include
+CFLAGS += -I FreeRTOS/portable/GCC/Mini-RISC
+SRC += FreeRTOS/tasks.c
+SRC += FreeRTOS/timers.c
+SRC += FreeRTOS/list.c
+SRC += FreeRTOS/queue.c
+SRC += FreeRTOS/croutine.c
+SRC += FreeRTOS/stream_buffer.c
+SRC += FreeRTOS/event_groups.c
+SRC += FreeRTOS/portable/MemMang/heap_3_nosuspend.c
+SRC += FreeRTOS/portable/GCC/Mini-RISC/port.c
+SRC += FreeRTOS/portable/GCC/Mini-RISC/portASM.S
+
+################################################################################
+
+LINKER_SCRIPT = minirisc/minirisc.ld
+
+CFLAGS  += -I.
 CFLAGS  += -W -Wall
 CFLAGS  += -Og -ggdb
 
@@ -72,9 +99,6 @@ size: $(BUILD)/$(TARGET).elf
 
 $(BUILD)/$(TARGET).lss: $(BUILD)/$(TARGET).elf
 	@$(OBJDUMP) -h -d $< > $@
-
-#	$(OBJDUMP) -h -S -d $< > $@ # -S for sources, -d to disassemble all what have instruction
-#	$(OBJDUMP) -h -S -D -z $< > $@
 
 bin: $(BUILD)/$(TARGET).bin
 	@echo "done"
