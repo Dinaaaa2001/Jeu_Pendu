@@ -37,6 +37,11 @@ SRC += FreeRTOS/portable/MemMang/heap_3_nosuspend.c
 SRC += FreeRTOS/portable/GCC/Mini-RISC/port.c
 SRC += FreeRTOS/portable/GCC/Mini-RISC/portASM.S
 
+################################ Support & glue ################################
+CFLAGS += -I support
+SRC += support/syscalls.c
+SRC += support/freertos_support.c
+
 ################################################################################
 
 LINKER_SCRIPT = minirisc/minirisc.ld
