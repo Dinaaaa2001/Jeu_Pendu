@@ -16,8 +16,6 @@ uint8_t ucHeap[configTOTAL_HEAP_SIZE];
 
 #if (configSUPPORT_STATIC_ALLOCATION == 1)
 /* External Idle and Timer task static memory allocation functions */
-//extern void vApplicationGetIdleTaskMemory  (StaticTask_t **ppxIdleTaskTCBBuffer,  StackType_t **ppxIdleTaskStackBuffer,  uint32_t *pulIdleTaskStackSize);
-//extern void vApplicationGetTimerTaskMemory (StaticTask_t **ppxTimerTaskTCBBuffer, StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize);
 
 /* vApplicationGetIdleTaskMemory gets called when configSUPPORT_STATIC_ALLOCATION
  * equals to 1 and is required for static memory allocation support.
@@ -54,7 +52,7 @@ void configure_timer_for_run_time_stats()
 
 configRUN_TIME_COUNTER_TYPE get_run_time_counter_value()
 {
-	/* Return time in micro-seconds since emulator startup.
+	/* Return time in nano-seconds since emulator startup.
 	 * 1h 11m 35s before 32-bit warp-arround.
 	 */
 	return (configRUN_TIME_COUNTER_TYPE)RTC->NSEC;

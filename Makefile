@@ -44,6 +44,7 @@ SRC    += FreeRTOS/portable/GCC/Mini-RISC/portASM.S
 CFLAGS += -Isupport
 SRC    += support/syscalls.c
 SRC    += support/freertos_support.c
+SRC    += support/uart.c
 
 ################################################################################
 

@@ -2,6 +2,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <errno.h>
+#include "harvey_platform.h"
+#include "uart.h"
 
 void __attribute__((noreturn)) _exit(int exit_value)
 {
@@ -33,30 +35,30 @@ void* __attribute__((weak)) _sbrk(ptrdiff_t incr)
 
 ssize_t __attribute__((weak)) _write(int fd, const void *ptr, size_t len)
 {
-#if 1
-	(void)fd;
-	(void)ptr;
-	(void)len;
+	if (fd == 1 || fd == 2) {
+		return uart_write(ptr, len);
+	}
 	errno = EBADF;
 	return -1;
-#else
-	size_t i = 0;
-	if (fd == 1 || fd == 2) {
-		for (i = 0; i < len; i++)
-			*(char*)0x10000000 = ((char*)ptr)[i];
-	}
-	return i;
-#endif
 }
 
 
 ssize_t __attribute__((weak)) _read(int fd, void *ptr, size_t len)
 {
-	(void)fd;
-	(void)ptr;
-	(void)len;
+	if (fd == 0) {
+		return uart_read(ptr, len);
+	}
 	errno = EBADF;
 	return -1;
+}
+
+
+int __attribute__((weak)) _gettimeofday(struct timeval *tp, void *tzp)
+{
+	(void)tzp;
+	tp->tv_sec = RTC->SEC;
+	tp->tv_usec = RTC->USEC;
+	return 0;
 }
 
 
@@ -130,14 +132,6 @@ off_t __attribute__((weak)) _lseek(int fd, off_t offset, int whence)
 	(void)offset;
 	(void)whence;
 	errno = EBADF;
-	return -1;
-}
-
-
-int __attribute__((weak)) _gettimeofday(struct timeval *tp, void *tzp)
-{
-	(void)tp;
-	(void)tzp;
 	return -1;
 }
 
