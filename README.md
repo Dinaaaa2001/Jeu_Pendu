@@ -3,7 +3,7 @@
 
 ## Objectif du projet
 
-Le but de ce projet est de créer une version du jeu classique du pendu sur une plateforme MiniRISC en utilisant FreeRTOS pour la gestion des tâches. L'objectif principal est de développer une application interactive qui utilise des périphériques tels que l'écran pour afficher le jeu et le clavier pour entrer des lettres.
+Le but de ce projet est de créer une version du jeu classique du pendu sur une plateforme MiniRISC. L'objectif principal est de développer une application interactive qui utilise des périphériques tels que l'écran pour afficher le jeu et le clavier pour entrer des lettres.
 
 ## Fonctionnalités prévues
 
@@ -17,6 +17,18 @@ Le but de ce projet est de créer une version du jeu classique du pendu sur une 
 
 ### Fonctionnalités fonctionnelles
 - Sélection aléatoire des mots à deviner.
+  ```c
+  void choisir_mot_aleatoire(char* mot_choisi, size_t taille) {
+      srand(time(NULL));
+      int index = rand() % NBR_MOTS;
+      strncpy(mot_choisi, mots_possibles[index], taille - 1);
+      mot_choisi[taille - 1] = '\0';
+
+      // Convertir tout le mot en majuscules
+      for (size_t i = 0; i < strlen(mot_choisi); i++) {
+          mot_choisi[i] = to_uppercase(mot_choisi[i]);
+      }
+  }
 - Affichage graphique des lettres devinées et des parties du pendu.
 - Gestion des erreurs et affichage des lettres non devinées.
 - Synchronisation entre les tâches pour la saisie et la vérification des lettres.
